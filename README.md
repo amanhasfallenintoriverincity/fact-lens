@@ -4,32 +4,40 @@ AI 기반 뉴스 감정 분석, 팩트체크, 편향성 비교 도구 (Vite + Re
 
 ## 🎯 주요 기능
 
-### 1. 감정 분석 (로컬 AI)
-- KoELECTRA-44emotions 모델 사용
+### 1. 감정 분석
+- Google Gemini API (Gemma 4 31B) 사용
 - 44가지 한국어 감정 분류
-- 브라우저에서 오프라인 실행
+- 실시간 분석
 
-### 2. 주장 추출 (LLM)
-- Google Gemma 4 31B 사용
+### 2. 주장 추출
+- Google Gemini API (Gemma 4 31B) 사용
 - 검증 가능한 주장 자동 추출
 
-### 3. 팩트체크 (하이브리드)
+### 3. 팩트체크
 - KOSIS 국가통계포털 API 연동
 - Google Fact Check API
-- 실시간 웹 검색
+- 슬라이딩 윈도우 매칭 알고리즘
 
 ### 4. 편향성 분석
 - 사실 vs 의견 비율
 - 누락된 맥락 탐지
 - 기사 프레임 분석
 
+### 5. 시각화
+- 기사 본문 인라인 형광펜 효과
+- Shimmer Effect 로딩 애니메이션
+- 글라스모피즘 UI
+- GSAP 애니메이션
+
 ## 🛠️ 기술 스택
 
 - **프론트엔드**: React 18 + TypeScript
+- **스타일링**: Tailwind CSS + ShadCN UI (글라스모피즘)
+- **애니메이션**: GSAP
 - **빌드 도구**: Vite 6
 - **확장 프로그램**: Chrome Manifest V3
-- **AI 모델**: KoELECTRA-44emotions (Transformers.js)
-- **API**: Google Gemini API (Gemma 4 31B), KOSIS OpenAPI
+- **AI 모델**: Google Gemini API (Gemma 4 31B)
+- **API**: KOSIS OpenAPI
 
 ## 🚀 설치 및 실행
 
@@ -60,9 +68,9 @@ npm run build
 
 ### 5. API 키 설정
 
-#### OpenAI API 키 (필수)
-1. [OpenAI Platform](https://platform.openai.com/api-keys)에서 API 키 발급
-2. Fact Lens 아이콘 클릭 → ⚙️ 설정 → OpenAI API Key 입력 → 저장
+#### Google Gemini API 키 (필수)
+1. [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키 발급
+2. Fact Lens 아이콘 클릭 → ⚙️ 설정 → Gemini API Key 입력 → 저장
 
 #### KOSIS API 키 (선택)
 1. [KOSIS OpenAPI](https://kosis.kr/openapi/)에서 API 키 발급
@@ -71,14 +79,10 @@ npm run build
 ## 📖 사용 방법
 
 1. 뉴스 기사 페이지 접속 (네이버 뉴스, 다음 뉴스 등)
-2. 우측 하단 Fact Lens 아이콘 클릭
-3. "현재 기사 분석" 버튼 클릭
-4. 분석 결과 확인:
-   - 감정 분석 (상위 5개 감정)
-   - 검증 가능 주장 목록
-   - 팩트체크 결과 (검증됨/미확인/거짓)
-   - 편향성 분석 (사실 vs 의견, 누락 맥락)
-   - 종합 점수 (신뢰도, 감정 안정성, 중립성)
+2. 기사 상단의 "Fact Lens로 팩트체크" 버튼 클릭
+3. Shimmer Effect와 함께 분석 진행
+4. 기사 본문에 형광펜으로 검증된 주장 표시
+5. 확장 프로그램 아이콘 클릭하여 상세 결과 확인
 
 ## 📂 프로젝트 구조
 
@@ -100,6 +104,7 @@ fact-lens-extension/
 │   ├── content/               # 콘텐츠 스크립트
 │   │   └── index.ts
 │   ├── components/            # React 컴포넌트
+│   │   ├── ui/                # ShadCN UI 컴포넌트
 │   │   ├── Header.tsx
 │   │   ├── Loading.tsx
 │   │   ├── EmotionAnalysis.tsx
@@ -111,7 +116,9 @@ fact-lens-extension/
 │   │   └── Footer.tsx
 │   ├── hooks/                 # React hooks
 │   │   └── useAnalysis.ts
-│   ├── utils/                 # 유틸리티 함수
+│   ├── lib/                   # 유틸리티
+│   │   └── utils.ts
+│   ├── utils/                 # 분석 유틸리티
 │   │   ├── emotionAnalyzer.ts
 │   │   ├── claimExtractor.ts
 │   │   ├── factChecker.ts
@@ -122,6 +129,7 @@ fact-lens-extension/
 ├── package.json
 ├── vite.config.ts
 ├── tsconfig.json
+├── components.json            # ShadCN UI 설정
 └── README.md
 ```
 
@@ -130,8 +138,7 @@ fact-lens-extension/
 ### Vite 설정 (vite.config.ts)
 
 - **Multi-entry points**: popup.html, background.ts, content.ts
-- **Deterministic output**: 해시 없이 `[name].js` 형식
-- **Public directory**: `public/` 폴더의 파일이 `dist/`로 복사됨
+- **Tailwind CSS**: @tailwindcss/vite 플러그인
 - **Path aliases**: `@/` → `src/`
 
 ### Manifest V3 구조
@@ -167,9 +174,9 @@ fact-lens-extension/
 - 사회적 이슈에 대한 다양한 시각 확인
 
 ### 주의사항
-- API 사용 비용: 기사당 약 $0.01-0.05 (약 10-50원)
-- OpenAI API는 유료이므로 사용량 확인 필요
+- Gemini API는 무료이지만 일일 할당량 제한 있음
 - KOSIS API는 무료이지만 통계 관련만 검증 가능
+- 형광펜 효과는 기사 본문과 매칭된 주장에만 적용됨
 
 ## 🐛 문제 해결
 
@@ -178,24 +185,22 @@ fact-lens-extension/
 - 기사 본문이 충분히 길지 않은 경우
 - 해결: 실제 뉴스 기사 페이지에서 사용
 
-### "OpenAI API 키가 필요합니다"
+### "Gemini API 키가 필요합니다"
 - 설정에서 API 키를 입력하지 않은 경우
 - 해결: Fact Lens 아이콘 → ⚙️ 설정 → API 키 입력
 
-### 감정 분석이 느립니다
-- 최초 실행 시 모델 다운로드 (약 400MB)
-- 2번째부터는 빠르게 작동
-- 인터넷 연결 필요 (최초 1회만)
+### 형광펜이 일부 주장에만 적용됩니다
+- Gemini가 추출한 주장이 기사 본문과 정확히 일치하지 않을 수 있음
+- 슬라이딩 윈도우 알고리즘으로 매칭 시도하지만 실패할 수 있음
+- 해결: 기사 본문이 충분히 길고 명확한지 확인
 
 ## 📝 라이선스
 
-- Base model: KoELECTRA (MIT License)
-- Dataset: KOTE + 추가 수집 데이터
-- Model: 자유롭게 연구/학습 목적 사용 가능
+이 프로젝트는 한국코드페어 해커톤 참가를 위해 개발되었습니다.
 
 ## 🤝 기여
 
-이 프로젝트는 한국코드페어 해커톤 참가를 위해 개발되었습니다.
+이슈와 PR을 환영합니다!
 
 ## 📧 문의
 
