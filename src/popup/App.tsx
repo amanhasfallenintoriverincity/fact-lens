@@ -8,6 +8,7 @@ import type { AnalysisResults, FactCheckResult } from '@/types';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRef } from 'react';
+import { CitationLink } from './CitationLink';
 
 gsap.registerPlugin(useGSAP);
 
@@ -249,9 +250,7 @@ export default function App() {
                         </p>
                       )}
                       {claim.source && (
-                        <p className="text-xs text-gray-500 mt-1 pl-6">
-                          출처: {claim.source}
-                        </p>
+                        <CitationLink source={claim.source} url={claim.url} />
                       )}
                     </div>
                   ))}

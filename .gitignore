@@ -32,6 +32,14 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+.pytest_cache/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Downloaded research datasets (keep only derived fixtures)
+experiments/**/data/
 
 # Temporary files
 *.tmp

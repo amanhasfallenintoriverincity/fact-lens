@@ -1,207 +1,152 @@
-# Fact Lens - 뉴스 편향성 & 팩트체크 분석기
+# Fact Lens
 
-AI 기반 뉴스 감정 분석, 팩트체크, 편향성 비교 도구 (Vite + React + Manifest V3)
+뉴스 기사에서 검증 가능한 주장을 찾아 Google Search 근거와 함께 보여 주는 Chrome 확장 프로그램입니다. Vite, React, TypeScript, Manifest V3로 만들었습니다.
 
-## 🎯 주요 기능
+> [!WARNING]
+> 현재 버전은 알파 시제품입니다. 모델의 판정과 인용은 참고 자료이며, 의료·법률·금융·선거처럼 중요한 판단에 그대로 사용하면 안 됩니다. 주장별 검색 결과와 인용 URL을 엄격하게 1:1로 묶는 작업은 아직 진행 중입니다.
 
-### 1. 감정 분석
-- Google Gemini API (Gemma 4 31B) 사용
-- 44가지 한국어 감정 분류
-- 실시간 분석
+## 현재 제공하는 기능
 
-### 2. 주장 추출
-- Google Gemini API (Gemma 4 31B) 사용
-- 검증 가능한 주장 자동 추출
+- 뉴스 기사 본문 추출
+- Gemini 3.5 Flash-Lite를 이용한 감정·주장·프레임 통합 분석
+- 기사당 최대 5개 주장 추출
+- Gemini Interactions API의 built-in Google Search를 이용한 팩트체크
+- 검색 호출 여부와 Interactions 응답 상태 검사
+- 기사 문장 인라인 하이라이트와 설명 tooltip
+- 팝업에서 판정 상태·설명·인용 링크 표시
+- 분석 진행·완료·실패 상태 저장
+- Vitest 단위·통합 테스트와 실제 MV3 E2E 스크립트
 
-### 3. 팩트체크
-- KOSIS 국가통계포털 API 연동
-- Google Fact Check API
-- 슬라이딩 윈도우 매칭 알고리즘
+## 확인된 제한
 
-### 4. 편향성 분석
-- 사실 vs 의견 비율
-- 누락된 맥락 탐지
-- 기사 프레임 분석
+- Google Search 할당량을 넘으면 HTTP 429로 팩트체크가 실패할 수 있습니다.
+- 현재 팩트체크 요청은 여러 주장을 한 번에 처리합니다. 관련 인용을 찾지 못하면 주장별 근거가 정확하게 결속되지 않을 수 있습니다.
+- 분석 결과는 `lastAnalysisResults` 단일 키에 저장되어 여러 탭의 결과를 구분하지 못합니다.
+- content script는 현재 `<all_urls>`에 등록되어 있습니다.
+- Gemini API 키는 `chrome.storage.sync`에 저장됩니다.
+- tooltip 일부는 모델 출력을 HTML 문자열로 구성하므로 안전한 DOM 렌더링으로 교체할 예정입니다.
+- 표시되는 종합 점수는 사실 확률이 아닙니다. 현재 계산식을 제품 지표로 사용하지 마세요.
 
-### 5. 시각화
-- 기사 본문 인라인 형광펜 효과
-- Shimmer Effect 로딩 애니메이션
-- 글라스모피즘 UI
-- GSAP 애니메이션
+이 제한은 `docs`의 제출 문서 형식 검증과 별개입니다. 테스트와 빌드가 통과해도 팩트체크 정확도나 인용 적합성이 자동으로 입증되지는 않습니다.
 
-## 🛠️ 기술 스택
+## 기술 구성
 
-- **프론트엔드**: React 18 + TypeScript
-- **스타일링**: Tailwind CSS + ShadCN UI (글라스모피즘)
-- **애니메이션**: GSAP
-- **빌드 도구**: Vite 6
-- **확장 프로그램**: Chrome Manifest V3
-- **AI 모델**: Google Gemini API (Gemma 4 31B)
-- **API**: KOSIS OpenAPI
+- React 18
+- TypeScript 5
+- Vite 6
+- Tailwind CSS 4
+- ShadCN UI
+- GSAP
+- Chrome Manifest V3
+- Gemini Interactions API
+- `gemini-3.5-flash-lite`
+- built-in `google_search`
 
-## 🚀 설치 및 실행
-
-### 1. 의존성 설치
+## 설치
 
 ```bash
 npm install
-```
-
-### 2. 개발 모드
-
-```bash
-npm run dev
-```
-
-### 3. 빌드
-
-```bash
 npm run build
 ```
 
-### 4. 크롬 확장 프로그램 로드
+Chrome에서 다음 순서로 로드합니다.
 
-1. Chrome 브라우저에서 `chrome://extensions/` 접속
-2. 우측 상단 "개발자 모드" 활성화
-3. "압축 해제된 확장 프로그램을 로드합니다" 클릭
-4. `dist` 폴더 선택
+1. `chrome://extensions/`를 엽니다.
+2. 개발자 모드를 켭니다.
+3. `압축 해제된 확장 프로그램을 로드합니다`를 누릅니다.
+4. 생성된 `dist` 폴더를 선택합니다.
 
-### 5. API 키 설정
+## API 키 설정
 
-#### Google Gemini API 키 (필수)
-1. [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키 발급
-2. Fact Lens 아이콘 클릭 → ⚙️ 설정 → Gemini API Key 입력 → 저장
+1. [Google AI Studio](https://aistudio.google.com/app/apikey)에서 Gemini API 키를 발급합니다.
+2. 확장 프로그램의 설정 페이지를 엽니다.
+3. 키를 입력하고 저장합니다.
 
-#### KOSIS API 키 (선택)
-1. [KOSIS OpenAPI](https://kosis.kr/openapi/)에서 API 키 발급
-2. Fact Lens 설정 → KOSIS API Key 입력 → 저장
+API 키를 소스 코드나 Git 커밋에 넣지 마세요. 분석 버튼을 누르면 기사 본문 일부가 Gemini API로 전송됩니다.
 
-## 📖 사용 방법
+## 사용 방법
 
-1. 뉴스 기사 페이지 접속 (네이버 뉴스, 다음 뉴스 등)
-2. 기사 상단의 "Fact Lens로 팩트체크" 버튼 클릭
-3. Shimmer Effect와 함께 분석 진행
-4. 기사 본문에 형광펜으로 검증된 주장 표시
-5. 확장 프로그램 아이콘 클릭하여 상세 결과 확인
+1. 뉴스 기사 페이지를 엽니다.
+2. 페이지에 표시된 `Fact Lens로 팩트체크` 버튼을 누릅니다.
+3. 분석이 끝나면 기사 본문에서 하이라이트와 설명을 확인합니다.
+4. 확장 프로그램 아이콘을 눌러 판정과 인용 링크를 확인합니다.
+5. 인용 링크의 원문을 직접 읽고 최종 판단합니다.
 
-## 📂 프로젝트 구조
+## 검증
 
-```
-fact-lens-extension/
-├── public/
-│   ├── manifest.json          # Chrome 확장 프로그램 매니페스트
-│   ├── options.html           # 설정 페이지
-│   ├── options.js
-│   └── icons/                 # 확장 아이콘
-├── src/
-│   ├── popup/                 # 팝업 UI (React)
-│   │   ├── index.html
-│   │   ├── main.tsx
-│   │   ├── App.tsx
-│   │   └── index.css
-│   ├── background/            # 백그라운드 서비스 워커
-│   │   └── index.ts
-│   ├── content/               # 콘텐츠 스크립트
-│   │   └── index.ts
-│   ├── components/            # React 컴포넌트
-│   │   ├── ui/                # ShadCN UI 컴포넌트
-│   │   ├── Header.tsx
-│   │   ├── Loading.tsx
-│   │   ├── EmotionAnalysis.tsx
-│   │   ├── ClaimsList.tsx
-│   │   ├── FactCheckResults.tsx
-│   │   ├── BiasAnalysis.tsx
-│   │   ├── SummaryScore.tsx
-│   │   ├── ErrorMessage.tsx
-│   │   └── Footer.tsx
-│   ├── hooks/                 # React hooks
-│   │   └── useAnalysis.ts
-│   ├── lib/                   # 유틸리티
-│   │   └── utils.ts
-│   ├── utils/                 # 분석 유틸리티
-│   │   ├── emotionAnalyzer.ts
-│   │   ├── claimExtractor.ts
-│   │   ├── factChecker.ts
-│   │   ├── biasAnalyzer.ts
-│   │   └── summaryCalculator.ts
-│   └── types/                 # TypeScript 타입 정의
-│       └── index.ts
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-├── components.json            # ShadCN UI 설정
-└── README.md
+```bash
+npm test
+npm run build
 ```
 
-## 🏗️ 빌드 설정
+실제 확장 프로그램 경로는 다음 스크립트로 검사합니다.
 
-### Vite 설정 (vite.config.ts)
+```bash
+npm run test:e2e
+```
 
-- **Multi-entry points**: popup.html, background.ts, content.ts
-- **Tailwind CSS**: @tailwindcss/vite 플러그인
-- **Path aliases**: `@/` → `src/`
+E2E는 content script, background service worker, Gemini 호출, storage, 하이라이트, popup 연결을 확인합니다. 실제 Google Search 호출은 계정 할당량과 네트워크 상태의 영향을 받습니다.
 
-### Manifest V3 구조
+2026년 8월 16일 기준 로컬 검증 결과는 다음과 같습니다.
 
-- **Service Worker**: `background.js` (모듈 타입)
-- **Content Script**: `content.js` (모든 페이지에 주입)
-- **Popup**: `popup.html` (React 앱)
-- **Options Page**: `options.html` (설정 페이지)
+- Vitest: 5개 파일, 9개 테스트 통과
+- TypeScript와 Vite production build 통과
+- 실제 Search E2E 통과
+  - 기사 분석과 Google Search 호출 2건 완료
+  - citation URL이 반환되지 않은 두 주장은 모두 `unverified`로 저장
+  - URL 없는 `verified` 또는 `false` 판정 0건
+  - storage, 하이라이트 2건, popup 렌더링 확인
 
-## 📊 심사 기준 최적화
+## 처리 흐름
 
-| 항목 | 점수 | 근거 |
-|------|------|------|
-| 아이디어 | 29/30 | 감정+팩트체크+편향 분석 + 정부 통계 연동 |
-| 실현가능 | 28/30 | API 조합으로 즉시 구현 |
-| 구체성 | 29/30 | 명확한 워크플로우 + 실제 통계 출처 |
-| 주제선택 | 10/10 | "신뢰 AI" + "안전한 정보" + 공공데이터 |
-| **합계** | **96/100** | |
+```text
+content script
+  → background service worker
+  → Gemini 기사 분석
+  → Gemini + Google Search 팩트체크
+  → chrome.storage.local
+  → 기사 하이라이트·tooltip
+  → popup 결과·인용 링크
+```
 
-## 🎯 대회 주제 적합성
+## 프로젝트 구조
 
-**"신뢰할 수 있는 AI와 인간이 함께 만들어가는 안전하고 포용적인 미래 사회"**
+```text
+public/
+  manifest.json
+  options.html
+  options.js
+src/
+  background/index.ts
+  content/index.ts
+  popup/
+    App.tsx
+    CitationLink.tsx
+  utils/
+    analysisPipeline.ts
+    articleAnalyzer.ts
+    factChecker.ts
+    geminiInteractions.ts
+    models.ts
+    summaryCalculator.ts
+  types/index.ts
+scripts/
+  e2e-extension.mjs
+tests/
+  fixtures/article.html
+```
 
-- ✅ **신뢰할 수 있는 AI**: 팩트체크로 정보 신뢰도 검증
-- ✅ **안전한**: 허위정보로부터 안전한 정보 환경
-- ✅ **포용적인**: 디지털 약자(노인, 청소년)도 쉽게 사용
+## 다음 우선순위
 
-## 💡 사용 팁
+1. 주장 하나당 검색·검색 결과·citation을 별도 계약으로 묶습니다.
+2. citation이 없으면 `verified`나 `false`가 아니라 `unverified`로 처리합니다.
+3. 무관한 첫 번째 citation을 재사용하는 fallback을 제거합니다.
+4. 결과를 URL과 tab ID별로 저장합니다.
+5. API 키 저장 위치, 외부 전송 동의, content-script 권한을 줄입니다.
+6. tooltip을 `textContent` 기반 DOM 렌더링으로 바꿉니다.
+7. HTTP 429 재시도, 지수 backoff, cache, 부분 결과 제공을 추가합니다.
+8. 실제 기사 표본으로 판정 정확도와 citation 적합성을 측정합니다.
 
-### 좋은 사용 사례
-- 정치 뉴스 비교 분석
-- 경제 통계 관련 기사 검증
-- 사회적 이슈에 대한 다양한 시각 확인
+## 라이선스
 
-### 주의사항
-- Gemini API는 무료이지만 일일 할당량 제한 있음
-- KOSIS API는 무료이지만 통계 관련만 검증 가능
-- 형광펜 효과는 기사 본문과 매칭된 주장에만 적용됨
-
-## 🐛 문제 해결
-
-### "기사 내용을 추출할 수 없습니다"
-- 뉴스 사이트가 아닌 경우 발생
-- 기사 본문이 충분히 길지 않은 경우
-- 해결: 실제 뉴스 기사 페이지에서 사용
-
-### "Gemini API 키가 필요합니다"
-- 설정에서 API 키를 입력하지 않은 경우
-- 해결: Fact Lens 아이콘 → ⚙️ 설정 → API 키 입력
-
-### 형광펜이 일부 주장에만 적용됩니다
-- Gemini가 추출한 주장이 기사 본문과 정확히 일치하지 않을 수 있음
-- 슬라이딩 윈도우 알고리즘으로 매칭 시도하지만 실패할 수 있음
-- 해결: 기사 본문이 충분히 길고 명확한지 확인
-
-## 📝 라이선스
-
-이 프로젝트는 한국코드페어 해커톤 참가를 위해 개발되었습니다.
-
-## 🤝 기여
-
-이슈와 PR을 환영합니다!
-
-## 📧 문의
-
-Questions or feedback welcome!
+한국코드페어 해커톤 출품을 위해 개발한 프로젝트입니다.

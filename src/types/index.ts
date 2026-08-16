@@ -40,5 +40,4 @@ export interface AnalysisResults {
 
 export interface Settings {
   geminiApiKey?: string;
-  kosisApiKey?: string;
 }

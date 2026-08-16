@@ -228,16 +228,26 @@ function ensureStyles() {
     .fact-lens-tooltip-claim {
       font-size: 14px;
       line-height: 1.6;
-      color: #374151;
+      color: #1a1a1a;
       margin-bottom: 12px;
       font-weight: 500;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
     }
     .fact-lens-tooltip-explanation {
       font-size: 13px;
       line-height: 1.5;
-      color: #6b7280;
-      padding-top: 12px;
-      border-top: 1px solid rgba(243, 244, 246, 0.5);
+      color: #4b5563;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(243, 244, 246, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(229, 231, 235, 0.5);
     }
 
     /* 분석 완료 뱃지 - 글라스모피즘 */
@@ -602,6 +612,10 @@ function clearHighlights() {
 
 function showTooltip(element: HTMLElement) {
   document.querySelector('.fact-lens-tooltip')?.remove();
+  if (scrollRepositionHandler) {
+    window.removeEventListener('scroll', scrollRepositionHandler, true);
+    scrollRepositionHandler = null;
+  }
   
   const claim = element.dataset.claim || '';
   const status = element.dataset.status || 'unverified';
@@ -624,16 +638,29 @@ function showTooltip(element: HTMLElement) {
     ${explanation ? `<div class="fact-lens-tooltip-explanation">${explanation}</div>` : ''}
   `;
   
-  const rect = element.getBoundingClientRect();
-  tooltip.style.left = `${Math.min(rect.left, window.innerWidth - 380)}px`;
-  tooltip.style.top = `${rect.bottom + 12}px`;
+  tooltip.dataset.anchorClaim = element.dataset.claim || '';
+  positionTooltip(tooltip, element);
   document.body.appendChild(tooltip);
   
+  scrollRepositionHandler = () => {
+    if (!document.body.contains(tooltip)) {
+      window.removeEventListener('scroll', scrollRepositionHandler!, true);
+      scrollRepositionHandler = null;
+      return;
+    }
+    positionTooltip(tooltip, element);
+  };
+  window.addEventListener('scroll', scrollRepositionHandler, { passive: true, capture: true });
+
   setTimeout(() => {
     const close = (e: Event) => {
       if (!tooltip.contains(e.target as Node) && e.target !== element) {
         tooltip.remove();
         document.removeEventListener('click', close);
+        if (scrollRepositionHandler) {
+          window.removeEventListener('scroll', scrollRepositionHandler, true);
+          scrollRepositionHandler = null;
+        }
       }
     };
     document.addEventListener('click', close);
@@ -710,3 +737,15 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
   }
 });
+let scrollRepositionHandler: ((event: Event) => void) | null = null;
+
+function positionTooltip(tooltip: HTMLDivElement, anchor: HTMLElement) {
+  const rect = anchor.getBoundingClientRect();
+  const tooltipWidth = 360;
+  const maxLeft = window.innerWidth - tooltipWidth - 16;
+  const left = Math.max(16, Math.min(rect.left, maxLeft));
+  const top = rect.bottom + 12;
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
+  tooltip.style.maxWidth = `${Math.min(tooltipWidth, window.innerWidth - 32)}px`;
+}

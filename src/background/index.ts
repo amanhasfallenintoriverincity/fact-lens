@@ -1,96 +1,125 @@
-import type { AnalysisResults } from '@/types';
-import { analyzeEmotion } from '@/utils/emotionAnalyzer';
-import { extractClaims } from '@/utils/claimExtractor';
-import { factCheckClaims } from '@/utils/factChecker';
-import { analyzeBias } from '@/utils/biasAnalyzer';
-import { calculateSummary } from '@/utils/summaryCalculator';
+import { runAnalysisPipeline } from '@/utils/analysisPipeline';
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+interface AnalysisState {
+  status: 'idle' | 'running' | 'completed' | 'error';
+  message: string;
+  startedAt?: number;
+  completedAt?: number;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : '알 수 없는 분석 오류가 발생했습니다.';
+}
+
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'analyze') {
-    const tabId = sender.tab?.id;
-    
-    handleAnalysis(request.content)
-      .then(result => {
-        // 결과 저장
-        chrome.storage.local.set({ lastAnalysisResults: result, timestamp: Date.now() });
-        
-        sendResponse({ success: true, data: result });
-        
-        // content script로 하이라이트 요청
-        if (tabId && result.factcheck && result.factcheck.length > 0) {
-          chrome.tabs.sendMessage(tabId, {
-            action: 'highlightClaims',
-            claims: result.factcheck.map(fc => ({
-              text: fc.claim,
-              status: fc.status,
-              explanation: fc.explanation
-            }))
-          }).catch(err => console.log('highlight message error:', err));
+    void (async () => {
+      const startedAt = Date.now();
+      try {
+        if (typeof request.content !== 'string' || request.content.trim().length < 100) {
+          throw new Error('분석할 기사 본문이 너무 짧습니다.');
         }
-      })
-      .catch(error => sendResponse({ success: false, error: error.message }));
-    return true;
-  }
-  
-  if (request.action === 'getLastResults') {
-    chrome.storage.local.get(['lastAnalysisResults', 'timestamp'], (data) => {
-      if (data.lastAnalysisResults) {
-        sendResponse({ 
-          success: true, 
-          data: data.lastAnalysisResults,
-          timestamp: data.timestamp
+
+        const settings = await chrome.storage.sync.get(['geminiApiKey']);
+        if (!settings.geminiApiKey) {
+          throw new Error('Gemini API 키가 설정되지 않았습니다. 확장 프로그램 설정에서 API 키를 저장해주세요.');
+        }
+
+        const runningState: AnalysisState = {
+          status: 'running',
+          message: 'Gemini 3.5 Flash-Lite가 기사 구조를 분석하고 있습니다.',
+          startedAt,
+        };
+        await chrome.storage.local.remove(['lastAnalysisResults', 'timestamp', 'lastAnalysisError']);
+        await chrome.storage.local.set({ analysisState: runningState });
+
+        const result = await runAnalysisPipeline(request.content, settings.geminiApiKey);
+        const completedAt = Date.now();
+        const completedState: AnalysisState = {
+          status: 'completed',
+          message: '분석이 완료되었습니다.',
+          startedAt,
+          completedAt,
+        };
+
+        await chrome.storage.local.set({
+          lastAnalysisResults: result,
+          timestamp: completedAt,
+          analysisState: completedState,
         });
-      } else {
-        sendResponse({ success: false, message: '분석 결과가 없습니다' });
+        sendResponse({ success: true, data: result });
+      } catch (error) {
+        const message = errorMessage(error);
+        console.error('[Fact Lens] Analysis failed:', message, error);
+        const failedState: AnalysisState = {
+          status: 'error',
+          message,
+          startedAt,
+          completedAt: Date.now(),
+        };
+        await chrome.storage.local.set({
+          analysisState: failedState,
+          lastAnalysisError: message,
+        });
+        sendResponse({ success: false, error: message });
       }
-    });
+    })();
     return true;
   }
-  
+
+  if (request.action === 'getLastResults') {
+    void (async () => {
+      const data = await chrome.storage.local.get([
+        'lastAnalysisResults',
+        'timestamp',
+        'analysisState',
+        'lastAnalysisError',
+      ]);
+      if (data.lastAnalysisResults) {
+        sendResponse({
+          success: true,
+          data: data.lastAnalysisResults,
+          timestamp: data.timestamp,
+          state: data.analysisState,
+        });
+        return;
+      }
+
+      sendResponse({
+        success: false,
+        status: data.analysisState?.status || 'idle',
+        message: data.lastAnalysisError
+          || data.analysisState?.message
+          || '분석 결과가 없습니다.',
+      });
+    })();
+    return true;
+  }
+
   if (request.action === 'clearResults') {
-    chrome.storage.local.remove(['lastAnalysisResults', 'timestamp']);
+    void chrome.storage.local.remove([
+      'lastAnalysisResults',
+      'timestamp',
+      'analysisState',
+      'lastAnalysisError',
+    ]);
     sendResponse({ success: true });
     return true;
   }
-  
+
   if (request.action === 'getSettings') {
-    chrome.storage.sync.get(['geminiApiKey', 'kosisApiKey'], (settings) => {
+    chrome.storage.sync.get(['geminiApiKey'], settings => {
       sendResponse(settings);
     });
     return true;
   }
-  
+
   if (request.action === 'saveSettings') {
     chrome.storage.sync.set(request.settings, () => {
       sendResponse({ success: true });
     });
     return true;
   }
+
+  return false;
 });
-
-async function handleAnalysis(content: string): Promise<AnalysisResults> {
-  const results: AnalysisResults = {
-    emotion: null,
-    claims: null,
-    factcheck: null,
-    bias: null,
-    summary: null
-  };
-
-  try {
-    results.emotion = await analyzeEmotion(content);
-    results.claims = await extractClaims(content);
-    
-    if (results.claims && results.claims.length > 0) {
-      results.factcheck = await factCheckClaims(results.claims);
-    }
-    
-    results.bias = await analyzeBias(content, results.emotion, results.factcheck);
-    results.summary = calculateSummary(results);
-    
-    return results;
-  } catch (error) {
-    console.error('Analysis error:', error);
-    throw error;
-  }
-}
