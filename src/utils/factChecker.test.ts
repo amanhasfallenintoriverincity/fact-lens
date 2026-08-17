@@ -9,7 +9,7 @@ describe('factCheckClaims', () => {
     // 실제 Fact Check Explorer API 응답 형식 (XSSI 방어 접두사 포함)
     const apiResponse = `)]}'
 
-[["claims_response",[[["${claim}",["출처",null,["https://example.com"]],1234567890,[["연합뉴스 팩트체크","yna.co.kr",null,"kr","South Korea","123456"],"https://www.yna.co.kr/factcheck/123",1234567890,"사실",null,[null,"789"],"ko",["kr"],"서울은 대한민국 헌법상 수도입니다",[2,1,6],null,1234567890]],null,null,["서울 대한민국 수도"],null,null,null]],"https://example.com/image.jpg",0.8]]]`;
+[["claims_response",[[["${claim}",["출처",null,["https://example.com"]],1234567890,[[["연합뉴스 팩트체크","yna.co.kr",null,"kr","South Korea","123456"],"https://www.yna.co.kr/factcheck/123",1234567890,"사실",null,[null,"789"],"ko",["kr"],"서울은 대한민국 헌법상 수도입니다",[2,1,6],null,1234567890]],null,null,["서울 대한민국 수도"],null,null,null]],"https://example.com/image.jpg",0.8]]]`;
 
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(apiResponse, { status: 200 }),
