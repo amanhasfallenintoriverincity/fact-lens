@@ -153,23 +153,13 @@ function ensureStyles() {
     .fact-lens-highlight:hover {
       background: linear-gradient(180deg, transparent 55%, rgba(255, 235, 59, 0.85) 55%);
     }
-    .fact-lens-highlight.verified {
-      background: linear-gradient(180deg, transparent 55%, rgba(76, 175, 80, 0.45) 55%);
+    /* 팩트체크 자료가 있는 경우 - 파란색 형광펜 */
+    .fact-lens-highlight.has-factcheck {
+      background: linear-gradient(180deg, transparent 55%, rgba(59, 130, 246, 0.5) 55%);
+      border-bottom: 2px solid rgba(59, 130, 246, 0.8);
     }
-    .fact-lens-highlight.verified:hover {
-      background: linear-gradient(180deg, transparent 55%, rgba(76, 175, 80, 0.8) 55%);
-    }
-    .fact-lens-highlight.unverified {
-      background: linear-gradient(180deg, transparent 55%, rgba(255, 152, 0, 0.45) 55%);
-    }
-    .fact-lens-highlight.unverified:hover {
-      background: linear-gradient(180deg, transparent 55%, rgba(255, 152, 0, 0.8) 55%);
-    }
-    .fact-lens-highlight.false {
-      background: linear-gradient(180deg, transparent 55%, rgba(244, 67, 54, 0.45) 55%);
-    }
-    .fact-lens-highlight.false:hover {
-      background: linear-gradient(180deg, transparent 55%, rgba(244, 67, 54, 0.8) 55%);
+    .fact-lens-highlight.has-factcheck:hover {
+      background: linear-gradient(180deg, transparent 55%, rgba(59, 130, 246, 0.85) 55%);
     }
 
     /* 툴팁 - 글라스모피즘 */
@@ -248,6 +238,28 @@ function ensureStyles() {
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(229, 231, 235, 0.5);
+    }
+    .fact-lens-tooltip-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: rgba(59, 130, 246, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+      color: #2563eb;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .fact-lens-tooltip-link:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.5);
+      transform: translateY(-1px);
     }
 
     /* 분석 완료 뱃지 - 글라스모피즘 */
@@ -564,7 +576,7 @@ function findMatchInArticle(
 
 function highlightClaims(
   articleElement: Element,
-  claims: Array<{ text: string; status?: string; explanation?: string }>
+  claims: Array<{ text: string; status?: string; explanation?: string; hasFactCheck?: boolean; url?: string | null }>
 ) {
   for (const claim of claims) {
     if (claim.text.trim().length < 10) continue;
@@ -578,11 +590,13 @@ function highlightClaims(
     const after = nodeText.substring(startIndex + matchLength);
     
     const span = document.createElement('span');
-    span.className = `fact-lens-highlight ${claim.status || ''}`;
+    span.className = `fact-lens-highlight ${claim.hasFactCheck ? 'has-factcheck' : ''}`;
     span.textContent = matched;
     span.dataset.claim = claim.text;
     span.dataset.status = claim.status || 'unverified';
     span.dataset.explanation = claim.explanation || '';
+    span.dataset.hasFactcheck = claim.hasFactCheck ? 'true' : 'false';
+    span.dataset.url = claim.url || '';
     
     span.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -618,25 +632,39 @@ function showTooltip(element: HTMLElement) {
   }
   
   const claim = element.dataset.claim || '';
-  const status = element.dataset.status || 'unverified';
   const explanation = element.dataset.explanation || '';
-  
-  const statusIcon = status === 'verified' ? '✅' : status === 'false' ? '❌' : '⚠️';
-  const statusText = status === 'verified' ? '검증됨' : status === 'false' ? '거짓' : '미확인';
+  const hasFactcheck = element.dataset.hasFactcheck === 'true';
+  const url = element.dataset.url || '';
   
   const tooltip = document.createElement('div');
   tooltip.className = 'fact-lens-tooltip';
-  tooltip.innerHTML = `
+  
+  let tooltipContent = `
     <div class="fact-lens-tooltip-header">
       <span class="fact-lens-tooltip-header-icon">🔍</span>
-      <span>팩트체크 결과</span>
-    </div>
-    <div class="fact-lens-tooltip-status ${status}">
-      ${statusIcon} ${statusText}
+      <span>팩트체크 정보</span>
     </div>
     <div class="fact-lens-tooltip-claim">${claim}</div>
-    ${explanation ? `<div class="fact-lens-tooltip-explanation">${explanation}</div>` : ''}
   `;
+  
+  if (hasFactcheck && url) {
+    tooltipContent += `
+      <div class="fact-lens-tooltip-explanation">
+        ${explanation}
+      </div>
+      <a href="${url}" target="_blank" rel="noopener noreferrer" class="fact-lens-tooltip-link">
+        🔗 Google Fact Check에서 확인하기
+      </a>
+    `;
+  } else {
+    tooltipContent += `
+      <div class="fact-lens-tooltip-explanation">
+        이 주장에 대한 팩트체크 자료가 없습니다.
+      </div>
+    `;
+  }
+  
+  tooltip.innerHTML = tooltipContent;
   
   tooltip.dataset.anchorClaim = element.dataset.claim || '';
   positionTooltip(tooltip, element);

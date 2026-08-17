@@ -1,0 +1,31 @@
+{
+  "dataset": "copenlu/scientific-exaggeration-detection",
+  "split": "test",
+  "pairs": [
+    {
+      "fixture_id": "SED-1",
+      "abstract_conclusion": "Despite a 78.6% reduction in prescribing of antibiotic prophylaxis after the introduction of the NICE guideline, this study excluded any large increase in the incidence of cases of or deaths from infective endocarditis in the two years after the guideline.",
+      "press_release_conclusion": "Research from the University of Sheffield has found that a common treatment for a life-threatening heart condition has little significant impact on patient outcomes."
+    },
+    {
+      "fixture_id": "SED-2",
+      "abstract_conclusion": "A score based on MS (glutamate, isoleucine, glycine, lysophosphatidylcholine 16:0, phosphoethanolamine 40:6) and knowledge of AST, fasting insulin, and PNPLA3 genotype is significantly better than a score based on clinical or metabolic profiles alone in determining the risk of NASH.",
+      "press_release_conclusion": "Using information collected in a liver biopsy study, researchers at Cardiff University have developed a method of determining the onset of non-alcoholic steatohepatitis (NASH) through the analysis of lipids, metabolites and clinical markers in blood."
+    },
+    {
+      "fixture_id": "SED-3",
+      "abstract_conclusion": "In GSCs, the small-molecule RAD51 inhibitors RI-1 and B02 prevent RAD51 focus formation, reduce DNA DSB repair, and cause significant radiosensitization.",
+      "press_release_conclusion": "Inhibiting RAD51 helped increase the effectiveness of radiotherapy in killing off glioblastoma cells"
+    },
+    {
+      "fixture_id": "SED-4",
+      "abstract_conclusion": "In experimental TBI, CD59-2a-CRIg administered posttrauma homed to sites of injury and significantly reduced MAC deposition, microglial accumulation, mitochondrial stress, and axonal damage and enhanced neurologic recovery compared with placebo controls.",
+      "press_release_conclusion": "New ‘homing’ treatment could aid recovery for brain damaged patients"
+    },
+    {
+      "fixture_id": "SED-5",
+      "abstract_conclusion": "At index acute myocardial infarction, diabetes was common and associated with significant long-term excess mortality, over and above the effects of comorbidities, risk factors and cardiovascular treatments.",
+      "press_release_conclusion": "Having diabetes increases the risk of dying from the effects of a heart attack by around 50 per cent, a University of Leeds study has found."
+    }
+  ]
+}

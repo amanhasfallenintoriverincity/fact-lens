@@ -10,7 +10,7 @@ export async function runAnalysisPipeline(
 ): Promise<AnalysisResults> {
   const article = await analyzeArticle(content, apiKey, fetchImpl);
   const factcheck = article.claims.length > 0
-    ? await factCheckClaims(article.claims, apiKey, fetchImpl)
+    ? await factCheckClaims(article.claims, fetchImpl)
     : [];
 
   const results: AnalysisResults = {

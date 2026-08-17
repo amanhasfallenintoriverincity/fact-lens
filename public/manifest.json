@@ -5,11 +5,19 @@
   "description": "AI 기반 뉴스 편향성 & 팩트체크 분석기",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "identity"
   ],
   "host_permissions": [
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://factchecktools.googleapis.com/*"
   ],
+  "oauth2": {
+    "client_id": "431397188413-hdj8rg6hptulcr7dimjht85pl5a73oa2.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/factchecktools"
+    ]
+  },
   "action": {
     "default_popup": "src/popup/index.html",
     "default_icon": {

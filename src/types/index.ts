@@ -4,6 +4,7 @@ export interface EmotionScores {
 
 export interface Claim {
   text: string;
+  searchQuery: string;
 }
 
 export interface FactCheckResult {
@@ -12,6 +13,7 @@ export interface FactCheckResult {
   source: string | null;
   explanation: string;
   url: string | null;
+  hasFactCheck: boolean;
 }
 
 export interface BiasAnalysis {

@@ -15,7 +15,7 @@ export const EMOTION_LABELS = [
 
 interface RawArticleAnalysis {
   emotions: Array<{ label: string; score: number }>;
-  claims: string[];
+  claims: Array<{ text: string; searchQuery: string }>;
   bias?: BiasAnalysis;
   factRatio?: number;
   opinionRatio?: number;
@@ -46,7 +46,14 @@ const ARTICLE_ANALYSIS_SCHEMA = {
     },
     claims: {
       type: 'array',
-      items: { type: 'string' },
+      items: {
+        type: 'object',
+        properties: {
+          text: { type: 'string' },
+          searchQuery: { type: 'string' }
+        },
+        required: ['text', 'searchQuery']
+      }
     },
     factRatio: { type: 'integer' },
     opinionRatio: { type: 'integer' },
@@ -86,10 +93,12 @@ function normalizeAnalysis(raw: RawArticleAnalysis): ArticleAnalysis {
   }
 
   const claims = [...new Set((Array.isArray(raw.claims) ? raw.claims : [])
-    .map(claim => String(claim).trim())
-    .filter(claim => claim.length >= 8))]
-    .slice(0, 5)
-    .map(text => ({ text }));
+    .map(claim => ({
+      text: String(claim.text || '').trim(),
+      searchQuery: String(claim.searchQuery || '').trim()
+    }))
+    .filter(claim => claim.text.length >= 8 && claim.searchQuery.length >= 3))]
+    .slice(0, 5);
 
   const fact = clampScore(raw.bias?.factOpinionRatio?.fact ?? raw.factRatio, 50);
   const opinion = clampScore(raw.bias?.factOpinionRatio?.opinion ?? raw.opinionRatio, 100 - fact);
@@ -112,7 +121,22 @@ export async function analyzeArticle(
 ): Promise<ArticleAnalysis> {
   const response = await requestInteraction(apiKey, {
     model: FACT_LENS_MODEL,
-    system_instruction: `당신은 한국어 뉴스 분석 전문가입니다. 기사에 실제로 드러난 표현만 근거로 감정, 검증 가능한 주장, 편향성을 동시에 분석하세요. 검증 가능한 주장은 원문 문장을 가능한 한 그대로 보존하고 최대 5개만 추출하세요. 감정은 다음 라벨 중 상위 1~5개만 고르세요: ${EMOTION_LABELS.join(', ')}. factRatio와 opinionRatio의 합은 100이어야 합니다.`,
+    system_instruction: `당신은 한국어 뉴스 분석 전문가입니다. 기사에 실제로 드러난 표현만 근거로 감정, 검증 가능한 주장, 편향성을 동시에 분석하세요.
+
+검증 가능한 주장은 다음 형식으로 추출하세요:
+- text: 원문 문장을 가능한 한 그대로 보존
+- searchQuery: 3-5개의 핵심 키워드만 추출 (짧고 간결하게)
+
+예시:
+- text: "시는 이 현수막이 태극기를 거꾸로 그린 것으로 오해할 소지가 있다고 판단해 전날 현수막을 철거했다."
+- searchQuery: "태극기 오해 철거"
+
+- text: "지난 14일 코스피는 전주 대비 719.17포인트(11.49%) 오른 6,977.94로 장을 마쳤다."
+- searchQuery: "코스피 상승 마감"
+
+searchQuery는 반드시 3-5개의 핵심 명사/동사만 포함하고, 조사/어미/수치/날짜는 제거하세요.
+
+최대 5개만 추출하세요. 감정은 다음 라벨 중 상위 1~5개만 고르세요: ${EMOTION_LABELS.join(', ')}. factRatio와 opinionRatio의 합은 100이어야 합니다.`,
     input: `다음 뉴스 기사를 분석하세요.\n\n${content.slice(0, 12_000)}`,
     generation_config: {
       thinking_level: 'minimal',

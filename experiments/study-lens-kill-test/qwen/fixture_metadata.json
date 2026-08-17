@@ -1,0 +1,62 @@
+[
+  {
+    "fixture_id": "SED-1",
+    "paper_title": "Impact of the NICE guideline recommending cessation of antibiotic prophylaxis for prevention of infective endocarditis: before and after study",
+    "doi": "10.1136/bmj.d2392",
+    "year": 2011,
+    "journal": "BMJ",
+    "verified_abstract_url": "https://pubmed.ncbi.nlm.nih.gov/21540258/",
+    "press_release_url": null,
+    "identification_confidence": "high",
+    "identification_evidence": "Abstract conclusion text matches verbatim: 'Despite a 78.6% reduction in prescribing of antibiotic prophylaxis after the introduction of the NICE guideline, this study excluded any large increase in the incidence of cases of or deaths from infective endocarditis in the two years after the guideline.' Authors Thornhill MH et al. are affiliated with University of Sheffield. Press release URL not found.",
+    "lookup_sources": ["https://pubmed.ncbi.nlm.nih.gov/21540258/", "https://pmc.ncbi.nlm.nih.gov/articles/PMC3086390/"]
+  },
+  {
+    "fixture_id": "SED-2",
+    "paper_title": "Noninvasive Detection of Nonalcoholic Steatohepatitis Using Clinical Markers and Circulating Levels of Lipids and Metabolites",
+    "doi": "10.1016/j.cgh.2016.05.046",
+    "year": 2016,
+    "journal": "Clinical Gastroenterology and Hepatology",
+    "verified_abstract_url": "https://pubmed.ncbi.nlm.nih.gov/27317851/",
+    "press_release_url": "https://www.cardiff.ac.uk/news/view/482735-non-invasive-diagnosis",
+    "identification_confidence": "high",
+    "identification_evidence": "Abstract conclusion matches verbatim: 'A score based on MS (glutamate, isoleucine, glycine, lysophosphatidylcholine 16:0, phosphoethanolamine 40:6) and knowledge of AST, fasting insulin, and PNPLA3 genotype is significantly better than a score based on clinical or metabolic profiles alone in determining the risk of NASH.' Authors include Zhou Y et al. from Cardiff University. Cardiff University press release confirms the PR conclusion text.",
+    "lookup_sources": ["https://pubmed.ncbi.nlm.nih.gov/27317851/", "https://orca.cardiff.ac.uk/id/eprint/93205/", "https://www.cardiff.ac.uk/news/view/482735-non-invasive-diagnosis"]
+  },
+  {
+    "fixture_id": "SED-3",
+    "paper_title": "RAD51 Is a Selective DNA Repair Target to Radiosensitize Glioma Stem Cells",
+    "doi": "10.1016/j.stemcr.2016.11.014",
+    "year": 2017,
+    "journal": "Stem Cell Reports",
+    "verified_abstract_url": "https://pubmed.ncbi.nlm.nih.gov/28076755/",
+    "press_release_url": null,
+    "identification_confidence": "high",
+    "identification_evidence": "Abstract conclusion matches verbatim: 'In GSCs, the small-molecule RAD51 inhibitors RI-1 and B02 prevent RAD51 focus formation, reduce DNA DSB repair, and cause significant radiosensitization.' Authors Short SC et al. Published in Stem Cell Reports 2017. Press release URL not found.",
+    "lookup_sources": ["https://pubmed.ncbi.nlm.nih.gov/28076755/", "https://pmc.ncbi.nlm.nih.gov/articles/PMC5233453/", "https://www.cell.com/stem-cell-reports/fulltext/S2213-6711(16)30295-8"]
+  },
+  {
+    "fixture_id": "SED-4",
+    "paper_title": "An anticomplement agent that homes to the damaged brain and promotes recovery after traumatic brain injury in mice",
+    "doi": "10.1073/pnas.1513698112",
+    "year": 2015,
+    "journal": "Proceedings of the National Academy of Sciences (PNAS)",
+    "verified_abstract_url": "https://pubmed.ncbi.nlm.nih.gov/26578778/",
+    "press_release_url": "https://www.sciencedaily.com/releases/2015/12/151216231335.htm",
+    "identification_confidence": "high",
+    "identification_evidence": "Abstract conclusion matches verbatim: 'In experimental TBI, CD59-2a-CRIg administered posttrauma homed to sites of injury and significantly reduced MAC deposition, microglial accumulation, mitochondrial stress, and axonal damage and enhanced neurologic recovery compared with placebo controls.' Authors Ruseva MM et al. ScienceDaily press release confirms the PR conclusion text about 'homing' treatment.",
+    "lookup_sources": ["https://pubmed.ncbi.nlm.nih.gov/26578778/", "https://www.pnas.org/doi/10.1073/pnas.1513698112", "https://www.sciencedaily.com/releases/2015/12/151216231335.htm"]
+  },
+  {
+    "fixture_id": "SED-5",
+    "paper_title": "Long-term excess mortality associated with diabetes following acute myocardial infarction: a population-based cohort study",
+    "doi": "10.1136/jech-2016-207402",
+    "year": 2017,
+    "journal": "Journal of Epidemiology and Community Health",
+    "verified_abstract_url": "https://pubmed.ncbi.nlm.nih.gov/27307468/",
+    "press_release_url": "https://medicalxpress.com/news/2016-06-diabetes-heart-death-cent.html",
+    "identification_confidence": "high",
+    "identification_evidence": "Abstract conclusion matches verbatim: 'At index acute myocardial infarction, diabetes was common and associated with significant long-term excess mortality, over and above the effects of comorbidities, risk factors and cardiovascular treatments.' Authors Alabasa et al. MedicalXpress press release confirms 'Diabetes raises risk of heart attack death by 50 percent' matching the PR conclusion. University of Leeds affiliation confirmed.",
+    "lookup_sources": ["https://pubmed.ncbi.nlm.nih.gov/27307468/", "https://jech.bmj.com/content/71/1/25", "https://medicalxpress.com/news/2016-06-diabetes-heart-death-cent.html"]
+  }
+]

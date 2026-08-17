@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle2, AlertCircle, XCircle, TrendingUp, Brain, Target, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, TrendingUp, Brain, Target, Loader2 } from 'lucide-react';
 import type { AnalysisResults, FactCheckResult } from '@/types';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -51,43 +51,18 @@ export default function App() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'verified':
-        return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'unverified':
-        return <AlertCircle className="w-4 h-4 text-yellow-600" />;
-      case 'false':
-        return <XCircle className="w-4 h-4 text-red-600" />;
-      default:
-        return null;
-    }
+  const getStatusIcon = (hasFactCheck: boolean) => {
+    return hasFactCheck ? <CheckCircle2 className="w-4 h-4 text-blue-600" /> : <AlertCircle className="w-4 h-4 text-gray-400" />;
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'verified':
-        return '검증됨';
-      case 'unverified':
-        return '미확인';
-      case 'false':
-        return '거짓';
-      default:
-        return status;
-    }
+  const getStatusText = (hasFactCheck: boolean) => {
+    return hasFactCheck ? '팩트체크 자료 있음' : '팩트체크 자료 없음';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'verified':
-        return 'bg-green-100/80 text-green-800 border-green-200/50 backdrop-blur-sm';
-      case 'unverified':
-        return 'bg-yellow-100/80 text-yellow-800 border-yellow-200/50 backdrop-blur-sm';
-      case 'false':
-        return 'bg-red-100/80 text-red-800 border-red-200/50 backdrop-blur-sm';
-      default:
-        return 'bg-gray-100/80 text-gray-800 border-gray-200/50 backdrop-blur-sm';
-    }
+  const getStatusColor = (hasFactCheck: boolean) => {
+    return hasFactCheck 
+      ? 'bg-blue-100/80 text-blue-800 border-blue-200/50 backdrop-blur-sm' 
+      : 'bg-gray-100/80 text-gray-600 border-gray-200/50 backdrop-blur-sm';
   };
 
   const formatTime = (ts: number) => {
@@ -233,14 +208,14 @@ export default function App() {
                       className="p-3 glass-subtle rounded-lg"
                     >
                       <div className="flex items-start gap-2 mb-2">
-                        {getStatusIcon(claim.status)}
+                        {getStatusIcon(claim.hasFactCheck)}
                         <div className="flex-1">
                           <p className="text-sm font-medium mb-1">{claim.claim}</p>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${getStatusColor(claim.status)}`}
+                            className={`text-xs ${getStatusColor(claim.hasFactCheck)}`}
                           >
-                            {getStatusText(claim.status)}
+                            {getStatusText(claim.hasFactCheck)}
                           </Badge>
                         </div>
                       </div>

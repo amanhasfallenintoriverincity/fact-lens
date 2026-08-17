@@ -1,0 +1,47 @@
+[
+  {
+    "fixture_id": "SED-1",
+    "predicted_label": "same",
+    "confidence": 0.70,
+    "abstract_evidence_span": "excluded any large increase in the incidence of cases of or deaths from infective endocarditis",
+    "press_release_evidence_span": "has little significant impact on patient outcomes",
+    "mismatch_types": [],
+    "rationale_ko": "초록은 항생제 예방요법 처방이 78.6% 감소했음에도 감염성 심내막염 발생률이나 사망률의 '대규모 증가'는 배제되었다고 결론내린다. 보도자료를 이를 '환자 결과에 미치는 유의미한 영향이 거의 없다'고 요약한 것으로, 핵심 결론(처方 감소가 큰 해악으로 이어지지 않음)을 정확히 전달하고 있다. 다만 '감염성 심내막염'이라는 구체적 질환이 '위협적인 심장 질환'으로 일반화된 점은 경미한 정보 손실이지만 과장이나 축소는 아니다."
+  },
+  {
+    "fixture_id": "SED-2",
+    "predicted_label": "downplays",
+    "confidence": 0.75,
+    "abstract_evidence_span": "significantly better than a score based on clinical or metabolic profiles alone in determining the risk of NASH",
+    "press_release_evidence_span": "developed a method of determining the onset of non-alcoholic steatohepatitis (NASH) through the analysis of lipids, metabolites and clinical markers in blood",
+    "mismatch_types": ["other"],
+    "rationale_ko": "초록의 핵심 결론은 새로운 점수가 기존 임상·대사 프로필 기반 점수보다 '유의미하게 더 우수하다(significantly better)'는 비교 우위 주장이다. 그러나 보도자료를 단순히 '방법을 개발했다'고만 서술하여, 기존 방법 대비 우수성이라는 핵심 기여도를 누락했다. 이는 발견의 중요성을 축소(downplay)하는 것이다."
+  },
+  {
+    "fixture_id": "SED-3",
+    "predicted_label": "same",
+    "confidence": 0.85,
+    "abstract_evidence_span": "cause significant radiosensitization",
+    "press_release_evidence_span": "increase the effectiveness of radiotherapy in killing off glioblastoma cells",
+    "mismatch_types": [],
+    "rationale_ko": "초록의 'radiosensitization(방사선과민화)'은 방사선 치료 효과를 증가시키는 것을 의미하며, 보도자료의 '방사선 치료 효과 증가'는 이를 정확히 전달한다. 초록이 GSCs(교모세포종 줄기세포)를 언급한 반면 보도자료는 'glioblastoma cells'로 일반화했으나, 이는 경미한 표현 차이일 뿐 핵심 결론은 동일하다."
+  },
+  {
+    "fixture_id": "SED-4",
+    "predicted_label": "exaggerates",
+    "confidence": 0.80,
+    "abstract_evidence_span": "In experimental TBI",
+    "press_release_evidence_span": "could aid recovery for brain damaged patients",
+    "mismatch_types": ["population_inflation"],
+    "rationale_ko": "초록은 'experimental TBI(실험적 외상성 뇌손상)' 즉 전임상/동물 모델 연구를 명시한다. 그러나 보도자료는 'brain damaged patients(뇌 손상 환자)'라고 서술하여, 실험실 단계의 연구 결과를 인간 환자 적용 가능성인 것처럼 일반화했다. 이는 연구 대상 집단을 부풀리는 population_inflation에 해당한다."
+  },
+  {
+    "fixture_id": "SED-5",
+    "predicted_label": "exaggerates",
+    "confidence": 0.75,
+    "abstract_evidence_span": "associated with significant long-term excess mortality",
+    "press_release_evidence_span": "increases the risk of dying from the effects of a heart attack by around 50 per cent",
+    "mismatch_types": ["causality_inflation", "caveat_omission"],
+    "rationale_ko": "초록은 당뇨병이 급성 심근경색 시 '연관되어 있다(associated with)'는 관찰적 연관성을 서술하며, 다른 합병증·위험인자·치료의 효과를 조정한 후의 독립적 연관성임을 명시한다. 보도자료는 '위험을 증가시킨다(increases the risk)'는 인과적 언어를 사용하고, 초록에 없는 '50%'라는 구체적 수치를 도입했으며, 다른 요인들을 조정했다는 중요 caveats를 누락했다. 이는 인과성 과장(causality_inflation)과 중요 전제 조건 누락(caveat_omission)에 해당한다."
+  }
+]

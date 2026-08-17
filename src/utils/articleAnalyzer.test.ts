@@ -5,7 +5,7 @@ describe('analyzeArticle', () => {
   it('한 번의 완료된 Gemini 3.5 Flash-Lite Interaction으로 감정·주장·편향을 반환한다', async () => {
     const output = {
       emotions: [{ label: '안심/신뢰', score: 82 }],
-      claims: ['대한민국의 수도는 서울이다'],
+      claims: [{ text: '대한민국의 수도는 서울이다', searchQuery: '서울 대한민국 수도' }],
       bias: {
         factOpinionRatio: { fact: 90, opinion: 10 },
         missingContext: ['행정기관의 세종 이전 맥락'],
@@ -32,7 +32,7 @@ describe('analyzeArticle', () => {
     expect(request.generation_config.max_output_tokens).toBeGreaterThanOrEqual(1500);
     expect(result).toEqual({
       emotion: { '안심/신뢰': 82 },
-      claims: [{ text: '대한민국의 수도는 서울이다' }],
+      claims: [{ text: '대한민국의 수도는 서울이다', searchQuery: '서울 대한민국 수도' }],
       bias: output.bias,
     });
   });
