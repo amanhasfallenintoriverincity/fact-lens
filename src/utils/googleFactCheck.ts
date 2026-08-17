@@ -48,6 +48,43 @@ function mapTextualRatingToStatus(rating: string | undefined): FactCheckResult['
   return 'unverified';
 }
 
+// 공식 Fact Check Tools API(claims.search) 응답 형식
+interface OfficialClaimReview {
+  publisher?: { name?: string; site?: string };
+  url?: string;
+  title?: string;
+  textualRating?: string;
+}
+
+function parseOfficialResponse(data: any, searchQuery: string): FactCheckResult | null {
+  if (!data || !Array.isArray(data.claims)) return null;
+
+  const claim = data.claims[0];
+  const review: OfficialClaimReview | undefined = claim?.claimReview?.[0];
+
+  if (!review) {
+    return {
+      claim: claim?.text || searchQuery,
+      status: 'unverified',
+      source: 'Google Fact Check',
+      explanation: '이 주장에 대한 팩트체크 결과를 찾을 수 없습니다.',
+      url: null,
+      hasFactCheck: false,
+    };
+  }
+
+  return {
+    claim: claim.text || searchQuery,
+    status: mapTextualRatingToStatus(review.textualRating),
+    source: review.publisher?.name || 'Google Fact Check',
+    explanation: review.title
+      ? `${review.title} (${review.textualRating || '평점 없음'})`
+      : `팩트체크 결과: ${review.textualRating || '평점 없음'}`,
+    url: review.url || null,
+    hasFactCheck: true,
+  };
+}
+
 export async function searchFactChecks(
   searchQuery: string,
   fetchImpl: typeof fetch = fetch,
@@ -62,6 +99,7 @@ export async function searchFactChecks(
       source: 'Google Fact Check',
       explanation: '검색 쿼리가 너무 짧아 팩트체크를 요청할 수 없습니다.',
       url: null,
+      hasFactCheck: false,
     };
   }
   
@@ -111,6 +149,10 @@ export async function searchFactChecks(
     console.error('[Fact Lens] JSON 파싱 실패:', error);
     throw new FactCheckApiError('응답을 파싱할 수 없습니다.');
   }
+
+  // 공식 Fact Check Tools API 형식이면 그대로 처리
+  const official = parseOfficialResponse(data, searchQuery);
+  if (official) return official;
 
   // 응답 구조: [["claims_response", [[claim_data, entity_data, ...]]]]
   const claimsResponse = data[0]?.[1]?.[0];
